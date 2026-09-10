@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio JAPI · Jouw nieuwe website, duidelijk geregeld</title>
+<meta name="description" content="Wat kost het om jouw website door Studio JAPI te laten bouwen? Eenmalige investering plus JAPI Care, helder op één pagina.">
+<style>
+  /* =========================================================
+     ROOT / DESIGN TOKENS
+     Studio JAPI kleuren: alleen deze vier hex-waarden.
+     Tinten worden gemaakt via rgba() op basis van dezelfde kleuren.
+  ========================================================== */
+  :root{
+    --purple:#a489fd;
+    --lime:#f8ff63;
+    --white:#ffffff;
+    --black:#000000;
+
+    --purple-rgb:164,137,253;
+    --lime-rgb:248,255,99;
+    --black-rgb:0,0,0;
+    --white-rgb:255,255,255;
+
+    --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+    --fs-hero: clamp(2.75rem, 7.5vw, 6.75rem);
+    --fs-h2: clamp(2.25rem, 5.2vw, 4.25rem);
+    --fs-price: clamp(2.75rem, 7vw, 4.75rem);
+    --fs-lead: clamp(1.1rem, 1.6vw, 1.375rem);
+    --fs-eq: clamp(2.25rem, 6vw, 4rem);
+
+    --space-section-y: clamp(72px, 11vw, 152px);
+    --space-x: clamp(24px, 6vw, 96px);
+
+    --radius-sm: 12px;
+    --radius-md: 20px;
+    --radius-lg: 32px;
+    --radius-full: 999px;
+
+    --ease: cubic-bezier(.22,.61,.36,1);
+    --dur: .5s;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *, *::before, *::after{
+      animation-duration: .001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: .001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* =========================================================
+     RESET
+  ========================================================== */
+  *,*::before,*::after{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; }
+  html,body{ overflow-x:hidden; max-width:100%; }
+  body{
+    margin:0;
+    font-family:var(--font);
+    color:var(--black);
+    background:var(--white);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  img,svg{ display:block; max-width:100%; }
+  ul{ margin:0; padding:0; list-style:none; }
+  p{ margin:0; }
+  h1,h2,h3{ margin:0; font-weight:800; letter-spacing:-0.03em; }
+  a{ color:inherit; text-decoration:none; }
+  button{ font-family:inherit; }
+
+  ::selection{ background:var(--purple); color:var(--black); }
+
+  :focus-visible{
+    outline: 3px solid var(--purple);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .container{
+    max-width:1280px;
+    margin:0 auto;
+    padding-left:var(--space-x);
+    padding-right:var(--space-x);
+  }
+
+  .section{
+    padding-top:var(--space-section-y);
+    padding-bottom:var(--space-section-y);
+    position:relative;
+  }
+
+  .eyebrow{
+    display:inline-block;
+    font-size:.9rem;
+    font-weight:600;
+    letter-spacing:.02em;
+    color:var(--purple);
+    margin-bottom:20px;
+  }
+
+  .section-head{
+    max-width:760px;
+    margin-bottom:clamp(40px,6vw,72px);
+  }
+  .section-head h2{ font-size:var(--fs-h2); line-height:1.02; }
+  .section-head .lead{
+    font-size:var(--fs-lead);
+    font-weight:400;
+    margin-top:18px;
+    max-width:52ch;
+    opacity:.78;
+  }
+  .section--on-dark .section-head .lead{ opacity:.72; }
+
+  /* =========================================================
+     REVEAL ON SCROLL (subtiel, eenmalig per element)
+  ========================================================== */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+    transition-delay: var(--reveal-delay, 0s);
+  }
+  .reveal.is-visible{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  /* =========================================================
+     FIXED LOGO (blijft zichtbaar over alle secties)
+  ========================================================== */
+  .brand-mark{
+    position:fixed;
+    top:26px;
+    left:var(--space-x);
+    z-index:60;
+    font-weight:800;
+    font-size:1.05rem;
+    letter-spacing:-0.01em;
+    color:var(--white);
+    mix-blend-mode:difference;
+    pointer-events:none;
+  }
+
+  /* =========================================================
+     HERO
+  ========================================================== */
+  .hero{
+    min-height:100svh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding-top:calc(var(--space-section-y) + 40px);
+    padding-bottom:var(--space-section-y);
+    overflow:hidden;
+  }
+  .hero__blob{
+    position:absolute;
+    top:-10%;
+    right:-8%;
+    width:min(60vw,620px);
+    height:min(60vw,620px);
+    border-radius:44% 56% 62% 38% / 48% 42% 58% 52%;
+    background:
+      radial-gradient(circle at 32% 30%, rgba(var(--lime-rgb),.9), transparent 60%),
+      radial-gradient(circle at 68% 70%, rgba(var(--purple-rgb),.95), transparent 65%),
+      var(--purple);
+    opacity:.9;
+    z-index:0;
+    animation: blob-float 14s ease-in-out infinite;
+  }
+  @keyframes blob-float{
+    0%,100%{ transform:translate(0,0) rotate(0deg) scale(1); }
+    33%{ transform:translate(-3%,4%) rotate(6deg) scale(1.03); }
+    66%{ transform:translate(2%,-3%) rotate(-5deg) scale(.98); }
+  }
+  .hero__content{ position:relative; z-index:1; max-width:900px; }
+  .hero h1{
+    font-size:var(--fs-hero);
+    line-height:.98;
+  }
+  .hero__sub{
+    margin-top:28px;
+    font-size:var(--fs-lead);
+    max-width:44ch;
+    opacity:.78;
+    font-weight:400;
+  }
+
+  .scroll-indicator{
+    position:absolute;
+    bottom:40px;
+    left:var(--space-x);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:.85rem;
+    font-weight:600;
+    color:var(--black);
+    opacity:.6;
+    background:none;
+    border:none;
+    cursor:pointer;
+    z-index:2;
+  }
+  .scroll-indicator__stick{
+    width:1px;
+    height:34px;
+    background:var(--black);
+    position:relative;
+    overflow:hidden;
+  }
+  .scroll-indicator__stick::after{
+    content:"";
+    position:absolute;
+    top:-100%;
+    left:0;
+    width:100%;
+    height:100%;
+    background:var(--purple);
+    animation: stick-run 1.8s ease-in-out infinite;
+  }
+  @keyframes stick-run{
+    0%{ top:-100%; }
+    60%{ top:100%; }
+    100%{ top:100%; }
+  }
+
+  /* =========================================================
+     PRICING: WEBSITE (eenmalig)
+  ========================================================== */
+  .section--website{
+    background: rgba(var(--purple-rgb),.05);
+  }
+
+  .price-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:24px;
+    align-items:stretch;
+  }
+
+  .price-card{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    background:var(--white);
+    border:2px solid var(--black);
+    border-radius:var(--radius-lg);
+    padding:36px 30px 32px;
+    box-shadow:8px 8px 0 0 var(--black);
+    transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  }
+  .price-card:hover{
+    transform:translate(-4px,-4px);
+    box-shadow:12px 12px 0 0 var(--black);
+  }
+  .price-card--featured{
+    border-color:var(--black);
+    box-shadow:8px 8px 0 0 var(--purple);
+  }
+  .price-card--featured:hover{
+    box-shadow:12px 12px 0 0 var(--purple);
+  }
+  @media (min-width:981px){
+    .price-card--featured{ transform:translateY(-16px); }
+    .price-card--featured:hover{ transform:translate(-4px,-20px); }
+  }
+
+  .price-card__badge{
+    position:absolute;
+    top:-16px;
+    left:30px;
+    background:var(--lime);
+    color:var(--black);
+    font-size:.72rem;
+    font-weight:800;
+    letter-spacing:.03em;
+    padding:7px 14px;
+    border-radius:var(--radius-full);
+    border:2px solid var(--black);
+  }
+
+  .price-card__kicker{
+    font-size:.8rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    color:var(--purple);
+    margin-bottom:14px;
+  }
+  .price-card__pages{
+    font-size:1.15rem;
+    font-weight:700;
+    margin-bottom:22px;
+  }
+  .price-card__price{
+    font-size:var(--fs-price);
+    font-weight:800;
+    line-height:1;
+    letter-spacing:-0.02em;
+  }
+  .price-card__meta{
+    font-size:.85rem;
+    opacity:.6;
+    margin-top:8px;
+    margin-bottom:26px;
+    font-weight:500;
+  }
+  .price-card__label{
+    font-size:.85rem;
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .price-card__list{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    margin-bottom:20px;
+  }
+  .price-card__list li{
+    font-size:.95rem;
+    opacity:.85;
+    padding-left:16px;
+    position:relative;
+  }
+  .price-card__list li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:.55em;
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:var(--purple);
+  }
+  .price-card__desc{
+    font-size:.95rem;
+    opacity:.85;
+    margin-bottom:20px;
+  }
+  .price-card__closing{
+    margin-top:auto;
+    padding-top:16px;
+    font-size:.95rem;
+    font-weight:600;
+    border-top:1px solid rgba(var(--black-rgb),.1);
+  }
+
+  /* =========================================================
+     PRICING: JAPI CARE (maandelijks)
+  ========================================================== */
+  .section--care{
+    background:var(--black);
+    color:var(--white);
+  }
+  .section--care .price-card{
+    background:var(--black);
+    border:2px solid rgba(var(--white-rgb),.25);
+    box-shadow:8px 8px 0 0 rgba(var(--purple-rgb),.5);
+    color:var(--white);
+  }
+  .section--care .price-card:hover{
+    border-color:var(--white);
+    box-shadow:12px 12px 0 0 var(--purple);
+  }
+  .section--care .price-card--featured{
+    border-color:var(--lime);
+    box-shadow:8px 8px 0 0 var(--lime);
+  }
+  .section--care .price-card--featured:hover{
+    box-shadow:12px 12px 0 0 var(--lime);
+  }
+  .section--care .price-card__badge{
+    background:var(--lime);
+    color:var(--black);
+    border-color:var(--lime);
+  }
+  .section--care .price-card__kicker{ color:var(--lime); }
+  .section--care .price-card__meta{ opacity:.55; }
+  .section--care .price-card__closing{
+    border-top:1px solid rgba(var(--white-rgb),.15);
+  }
+
+  .check-list{ display:flex; flex-direction:column; gap:10px; margin-bottom:22px; }
+  .check-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    font-size:.95rem;
+  }
+  .check-list svg{
+    flex:0 0 auto;
+    width:18px; height:18px;
+    margin-top:2px;
+    color:var(--lime);
+  }
+
+  /* =========================================================
+     FORMULE-SECTIE
+  ========================================================== */
+  .section--formula{
+    background:var(--lime);
+    color:var(--black);
+    overflow:hidden;
+  }
+  .formula__head h2{ font-size:var(--fs-h2); }
+  .formula__eq{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:clamp(16px,3vw,32px);
+    margin-top:clamp(48px,7vw,88px);
+    margin-bottom:clamp(40px,6vw,72px);
+  }
+  .formula__term{
+    background:var(--white);
+    border:2px solid var(--black);
+    border-radius:var(--radius-lg);
+    padding:clamp(24px,3vw,36px) clamp(24px,3.5vw,44px);
+    text-align:center;
+    box-shadow:6px 6px 0 0 var(--black);
+  }
+  .formula__term-label{
+    font-size:.8rem;
+    font-weight:700;
+    letter-spacing:.03em;
+    margin-bottom:10px;
+    opacity:.6;
+  }
+  .formula__term-value{
+    font-size:var(--fs-eq);
+    font-weight:800;
+    letter-spacing:-0.02em;
+    line-height:1.05;
+    white-space:nowrap;
+  }
+  .formula__term-value small{
+    font-size:.42em;
+    font-weight:600;
+    opacity:.55;
+  }
+  .formula__op{
+    font-size:var(--fs-eq);
+    font-weight:800;
+  }
+  .formula__result{
+    background:var(--black);
+    color:var(--white);
+    border-color:var(--black);
+  }
+  .formula__result .formula__term-label{ opacity:.55; }
+  .formula__result .formula__term-value{ white-space:normal; font-size:clamp(1.5rem,3vw,2rem); max-width:22ch; }
+
+  .formula__foot{
+    max-width:60ch;
+    font-size:var(--fs-lead);
+    font-weight:500;
+    opacity:.75;
+  }
+
+  /* =========================================================
+     BENEFITS
+  ========================================================== */
+  .benefits__grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:20px;
+  }
+  @media (min-width:981px){
+    .benefits__grid{ grid-template-columns:repeat(3,1fr); }
+  }
+  .benefit{
+    padding:32px;
+    border-radius:var(--radius-lg);
+    border:2px solid rgba(var(--black-rgb),.1);
+  }
+  .benefit__icon{
+    width:56px; height:56px;
+    border-radius:var(--radius-sm);
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom:22px;
+  }
+  .benefit__icon svg{ width:26px; height:26px; }
+  .benefit:nth-child(1) .benefit__icon{ background:var(--purple); color:var(--black); }
+  .benefit:nth-child(2) .benefit__icon{ background:var(--black); color:var(--lime); }
+  .benefit:nth-child(3) .benefit__icon{ background:var(--lime); color:var(--black); }
+  .benefit:nth-child(4) .benefit__icon{ background:var(--white); color:var(--purple); border:2px solid var(--black); }
+  .benefit:nth-child(5) .benefit__icon{ background:var(--black); color:var(--purple); }
+  .benefit h3{ font-size:1.3rem; margin-bottom:10px; letter-spacing:-0.01em; }
+  .benefit p{ font-size:.98rem; opacity:.75; max-width:38ch; }
+
+  /* =========================================================
+     CTA
+  ========================================================== */
+  .section--cta{
+    background:var(--black);
+    color:var(--white);
+    text-align:left;
+  }
+  .cta h2{
+    font-size:var(--fs-hero);
+    line-height:.98;
+    color:var(--white);
+  }
+  .cta__sub{
+    margin-top:24px;
+    font-size:var(--fs-lead);
+    max-width:46ch;
+    opacity:.72;
+    font-weight:400;
+  }
+  .cta__actions{
+    margin-top:44px;
+    display:flex;
+    align-items:center;
+    gap:26px;
+    flex-wrap:wrap;
+  }
+  .btn-primary{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:var(--lime);
+    color:var(--black);
+    font-weight:800;
+    font-size:1.05rem;
+    padding:20px 36px;
+    border-radius:var(--radius-full);
+    border:2px solid var(--lime);
+    cursor:pointer;
+    transition: transform var(--dur) var(--ease), background var(--dur) var(--ease), color var(--dur) var(--ease);
+  }
+  .btn-primary:hover{
+    background:var(--black);
+    color:var(--lime);
+    transform:translateY(-4px);
+  }
+  .btn-primary svg{ width:20px; height:20px; transition:transform var(--dur) var(--ease); }
+  .btn-primary:hover svg{ transform:translateX(4px); }
+
+  .cta__secondary{
+    font-size:.95rem;
+    opacity:.6;
+    text-decoration:underline;
+    text-underline-offset:4px;
+  }
+  .cta__secondary:hover{ opacity:1; }
+
+  .site-footer{
+    padding:32px var(--space-x) 40px;
+    font-size:.85rem;
+    opacity:.5;
+    background:var(--black);
+    color:var(--white);
+  }
+
+  /* =========================================================
+     RESPONSIVE: TABLET
+  ========================================================== */
+  @media (max-width:980px){
+    .price-grid{ grid-template-columns:1fr; gap:28px; }
+    .price-card--featured{ transform:none !important; }
+    .benefits__grid{ grid-template-columns:1fr; }
+    .formula__eq{ flex-direction:column; }
+    .formula__op{ transform:rotate(90deg); }
+  }
+
+  /* =========================================================
+     RESPONSIVE: MOBILE
+  ========================================================== */
+  @media (max-width:640px){
+    :root{ --space-x:20px; }
+    .brand-mark{ top:18px; }
+    .hero{ min-height:92svh; padding-top:88px; }
+    .hero__blob{ width:80vw; height:80vw; right:-20%; top:-6%; opacity:.7; }
+    .scroll-indicator{ bottom:24px; }
+    .price-card{ padding:28px 22px; }
+    .formula__term-value{ white-space:normal; }
+    .btn-primary{ width:100%; justify-content:center; }
+    .cta__actions{ flex-direction:column; align-items:flex-start; gap:18px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="brand-mark">Studio JAPI</div>
+
+  <!-- =========================================================
+       1. HERO
+  ========================================================== -->
+  <header class="hero">
+    <div class="hero__blob" aria-hidden="true"></div>
+    <div class="container hero__content">
+      <p class="eyebrow">Studio JAPI · Websites</p>
+      <h1>Jouw nieuwe website.<br>Duidelijk geregeld.</h1>
+      <p class="hero__sub">Je hebt gezien wat we voor jouw bedrijf kunnen maken. Nu maken we het concreet.</p>
+    </div>
+    <button class="scroll-indicator" type="button" onclick="document.getElementById('website').scrollIntoView({behavior:'smooth'})" aria-label="Scroll naar de prijzen">
+      <span class="scroll-indicator__stick" aria-hidden="true"></span>
+      Scroll
+    </button>
+  </header>
+
+  <!-- =========================================================
+       2. EENMALIGE INVESTERING
+  ========================================================== -->
+  <section class="section section--website" id="website">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Hoe groot wordt<br>jouw website?</h2>
+        <p class="lead">De eenmalige investering wordt bepaald door het aantal pagina's dat we voor je ontwerpen en bouwen.</p>
+      </div>
+
+      <div class="price-grid">
+        <article class="price-card reveal">
+          <p class="price-card__kicker">Website 01</p>
+          <p class="price-card__pages">1 – 5 pagina's</p>
+          <p class="price-card__price">€750</p>
+          <p class="price-card__meta">eenmalig · excl. btw</p>
+          <p class="price-card__label">Geschikt voor bijvoorbeeld:</p>
+          <ul class="price-card__list">
+            <li>Homepage</li>
+            <li>Over ons</li>
+            <li>Diensten</li>
+            <li>Contact</li>
+            <li>Extra informatiepagina</li>
+          </ul>
+          <p class="price-card__closing">Compact, duidelijk en precies wat je nodig hebt.</p>
+        </article>
+
+        <article class="price-card price-card--featured reveal">
+          <span class="price-card__badge">Meest gekozen</span>
+          <p class="price-card__kicker">Website 02</p>
+          <p class="price-card__pages">5 – 10 pagina's</p>
+          <p class="price-card__price">€1.000</p>
+          <p class="price-card__meta">eenmalig · excl. btw</p>
+          <p class="price-card__desc">Geschikt voor bedrijven die meer diensten, projecten, informatie of andere onderdelen willen presenteren.</p>
+          <p class="price-card__closing">Meer ruimte voor jouw verhaal.</p>
+        </article>
+
+        <article class="price-card reveal">
+          <p class="price-card__kicker">Website 03</p>
+          <p class="price-card__pages">10 – 15 pagina's</p>
+          <p class="price-card__price">€1.250</p>
+          <p class="price-card__meta">eenmalig · excl. btw</p>
+          <p class="price-card__desc">Voor uitgebreidere websites met meerdere diensten, projecten, locaties of informatieve pagina's.</p>
+          <p class="price-card__closing">Alles wat je nodig hebt. Zonder onnodig ingewikkeld te worden.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       3. MAANDELIJKSE SERVICE (JAPI CARE)
+  ========================================================== -->
+  <section class="section section--care section--on-dark" id="care">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Wij bouwen hem.<br>Wij houden hem goed.</h2>
+        <p class="lead">Geen gedoe met updates, onderhoud of kleine wijzigingen. Dat regelen wij.</p>
+      </div>
+
+      <div class="price-grid">
+        <article class="price-card reveal">
+          <p class="price-card__kicker">JAPI Care 01</p>
+          <p class="price-card__price">€75</p>
+          <p class="price-card__meta">/ maand · excl. btw</p>
+          <ul class="check-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Technisch onderhoud</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Updates</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Website blijft goed functioneren</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> 1 aanpassingsmoment per maand</li>
+          </ul>
+          <p class="price-card__closing">Voor bedrijven die af en toe iets willen aanpassen.</p>
+        </article>
+
+        <article class="price-card price-card--featured reveal">
+          <span class="price-card__badge">Populair</span>
+          <p class="price-card__kicker">JAPI Care 02</p>
+          <p class="price-card__price">€100</p>
+          <p class="price-card__meta">/ maand · excl. btw</p>
+          <ul class="check-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Technisch onderhoud</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Updates</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Website blijft goed functioneren</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> 2 aanpassingsmomenten per maand</li>
+          </ul>
+          <p class="price-card__closing">Net wat meer vrijheid om je website actueel te houden.</p>
+        </article>
+
+        <article class="price-card reveal">
+          <p class="price-card__kicker">JAPI Care 03</p>
+          <p class="price-card__price">€125</p>
+          <p class="price-card__meta">/ maand · excl. btw</p>
+          <ul class="check-list">
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Technisch onderhoud</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Updates</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> Website blijft goed functioneren</li>
+            <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 13 9 18 20 6"/></svg> 3 aanpassingsmomenten per maand</li>
+          </ul>
+          <p class="price-card__closing">Voor bedrijven die regelmatig iets willen veranderen.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       4. PRIJSOPBOUW VISUEEL
+  ========================================================== -->
+  <section class="section section--formula">
+    <div class="container">
+      <div class="formula__head section-head reveal" style="margin-bottom:0;">
+        <h2>Zo simpel is het.</h2>
+      </div>
+
+      <div class="formula__eq reveal">
+        <div class="formula__term">
+          <p class="formula__term-label">Website</p>
+          <p class="formula__term-value">€750 / €1.000 / €1.250</p>
+        </div>
+        <span class="formula__op" aria-hidden="true">+</span>
+        <div class="formula__term">
+          <p class="formula__term-label">JAPI Care</p>
+          <p class="formula__term-value">€75 / €100 / €125 <small>p/m</small></p>
+        </div>
+        <span class="formula__op" aria-hidden="true">=</span>
+        <div class="formula__term formula__result">
+          <p class="formula__term-label">Resultaat</p>
+          <p class="formula__term-value">Jouw nieuwe website.</p>
+        </div>
+      </div>
+
+      <p class="formula__foot reveal">Geen verborgen kosten. Geen ingewikkelde constructies. Gewoon vooraf duidelijk weten waar je aan toe bent.</p>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       5. WAT KRIJGT DE KLANT
+  ========================================================== -->
+  <section class="section" id="voordelen">
+    <div class="container">
+      <div class="section-head reveal">
+        <h2>Niet zomaar<br>een website.</h2>
+      </div>
+
+      <div class="benefits__grid">
+        <div class="benefit reveal">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 42L10 32L32 10L38 16L16 38L6 42Z"/>
+              <path d="M27 15L33 21"/>
+            </svg>
+          </div>
+          <h3>Op maat gemaakt</h3>
+          <p>Geen standaard template dat bij tientallen andere bedrijven wordt gebruikt.</p>
+        </div>
+
+        <div class="benefit reveal">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="14" y="4" width="20" height="40" rx="4"/>
+              <line x1="20" y1="38" x2="28" y2="38"/>
+            </svg>
+          </div>
+          <h3>Mobiel geoptimaliseerd</h3>
+          <p>Een website die goed werkt en eruitziet op desktop, tablet en mobiel.</p>
+        </div>
+
+        <div class="benefit reveal">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M24 4L40 10V22C40 32 33 40 24 44C15 40 8 32 8 22V10L24 4Z"/>
+              <path d="M17 24L22 29L32 18"/>
+            </svg>
+          </div>
+          <h3>Technisch onderhouden</h3>
+          <p>Wij zorgen dat de website technisch up-to-date blijft.</p>
+        </div>
+
+        <div class="benefit reveal">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M8 10H40V32H20L12 40V32H8V10Z"/>
+              <circle cx="16" cy="21" r="1.4" fill="currentColor" stroke="none"/>
+              <circle cx="24" cy="21" r="1.4" fill="currentColor" stroke="none"/>
+              <circle cx="32" cy="21" r="1.4" fill="currentColor" stroke="none"/>
+            </svg>
+          </div>
+          <h3>Korte lijnen</h3>
+          <p>Een aanpassing nodig? Geen ticketsystemen of ingewikkelde support. Gewoon contact met Studio JAPI.</p>
+        </div>
+
+        <div class="benefit reveal">
+          <div class="benefit__icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="21" cy="21" r="13"/>
+              <line x1="30" y1="30" x2="41" y2="41"/>
+            </svg>
+          </div>
+          <h3>SEO geoptimaliseerd</h3>
+          <p>Je website wordt technisch goed vindbaar gebouwd, zodat Google 'm ook echt weet te vinden.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       6. CALL TO ACTION
+  ========================================================== -->
+  <section class="section section--cta" id="contact">
+    <div class="container">
+      <h2 class="reveal">Zullen we hem<br>gaan bouwen?</h2>
+      <p class="cta__sub reveal">Dan maken wij van het concept dat je zojuist hebt gezien een complete website.</p>
+
+      <div class="cta__actions reveal">
+        <a class="btn-primary" href="mailto:info@studiojapi.nl?subject=Laten%20we%20hem%20bouwen">
+          Let's go
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+        <a class="cta__secondary" href="mailto:info@studiojapi.nl?subject=Vraag%20over%20mijn%20website">Eerst nog iets bespreken?</a>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    Studio JAPI · Eindhoven
+  </footer>
+
+  <script>
+    (function(){
+      "use strict";
+
+      var reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      // ---------------------------------------------------------
+      // Reveal-on-scroll: subtiele fade + omhoogkomen, eenmalig.
+      // ---------------------------------------------------------
+      var revealEls = document.querySelectorAll(".reveal");
+
+      if (reduceMotion || !("IntersectionObserver" in window)) {
+        revealEls.forEach(function (el) { el.classList.add("is-visible"); });
+      } else {
+        var groupDelay = new WeakMap();
+
+        var observer = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              var el = entry.target;
+              var parent = el.parentElement;
+              var siblingsRevealed = parent ? parent.querySelectorAll(".reveal.is-visible").length : 0;
+              var delay = Math.min(siblingsRevealed * 0.08, 0.32);
+              el.style.setProperty("--reveal-delay", delay + "s");
+              el.classList.add("is-visible");
+              observer.unobserve(el);
+            }
+          });
+        }, { threshold: 0.15, rootMargin: "0px 0px -8% 0px" });
+
+        revealEls.forEach(function (el) { observer.observe(el); });
+      }
+
+      // ---------------------------------------------------------
+      // Scroll-indicator verbergen zodra bezoeker scrolt.
+      // ---------------------------------------------------------
+      var indicator = document.querySelector(".scroll-indicator");
+      if (indicator) {
+        var hideIndicator = function () {
+          if (window.scrollY > 80) {
+            indicator.style.opacity = "0";
+            indicator.style.pointerEvents = "none";
+          } else {
+            indicator.style.opacity = "";
+            indicator.style.pointerEvents = "";
+          }
+        };
+        window.addEventListener("scroll", hideIndicator, { passive: true });
+      }
+    })();
+  </script>
+</body>
+</html>
